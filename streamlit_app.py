@@ -2,8 +2,25 @@ import streamlit as st
 import random
 import time
 
+# Custom CSS for Maiandra GD font
+st.markdown("""
+<style>
+    @import url('https://fonts.cdnfonts.com/css/maiandra-gd');
+    
+    * {
+        font-family: 'Maiandra GD', sans-serif !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6, .stButton button, .stMarkdown p {
+        font-family: 'Maiandra GD', sans-serif !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Set page config
 st.set_page_config(page_title="Time To Toss The Dice", page_icon="🎲")
+
+# Rest of your code remains unchanged...
 
 # App title
 st.title("Time To Toss The Dice")
