@@ -38,7 +38,7 @@ with col2:
 
     # Show the result
     if st.session_state.result is not None:
-        st.markdown(f"<h1 style='text-align: center; color: gold;'>You rolled: {st.session_state.result}</h1>", 
+        st.markdown(f"<h1 style='text-align: center; color: #00008B;'>You rolled: {st.session_state.result}</h1>", 
                     unsafe_allow_html=True)
 
 # Show roll history
