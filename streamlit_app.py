@@ -1,28 +1,111 @@
 import streamlit as st
 import random
+import time
 
-def main():
-    st.title("D20 Roller")
-    st.write("Click the button to spin a teal 20-sided die and get a random number from 1 to 20.")
+# Set page config
+st.set_page_config(page_title="Time To Toss The Dice", page_icon="🎲")
 
-    # Display your teal/gold D20 image
-    # Replace "my_teal_d20.png" with the actual filename or path to your image
-    st.image("my_teal_d20.png", width=200, caption="Ocean Teal D20")
+# Custom CSS for styling
+st.markdown("""
+<style>
+    .dice-container {
+        display: flex;
+        justify-content: center;
+        margin: 30px 0;
+    }
+    .d20 {
+        width: 200px;
+        height: 200px;
+        cursor: pointer;
+        transition: transform 0.5s;
+    }
+    .spinning {
+        animation: spin 1s infinite linear;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.1); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+    .result {
+        font-size: 3rem;
+        text-align: center;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-    # If we haven’t rolled yet, set initial value in session state
-    if "roll_result" not in st.session_state:
-        st.session_state["roll_result"] = None
+# App title
+st.title("Time To Toss The Dice")
+st.subheader("Click the d20 to roll!")
 
-    # A button to spin (roll) the D20
-    if st.button("Roll the D20!"):
-        # Generate a random integer from 1 to 20
-        st.session_state["roll_result"] = random.randint(1, 20)
+# Initialize session state
+if 'rolling' not in st.session_state:
+    st.session_state.rolling = False
+if 'result' not in st.session_state:
+    st.session_state.result = None
+if 'roll_history' not in st.session_state:
+    st.session_state.roll_history = []
 
-    # If we have a roll result, display it
-    if st.session_state["roll_result"] is not None:
-        st.write(f"**You rolled a {st.session_state['roll_result']}!**")
+# Function to roll the dice
+def roll_dice():
+    st.session_state.rolling = True
+    st.session_state.result = None
+    st.experimental_rerun()
 
-if __name__ == "__main__":
-    main()
+# Create a container for the dice
+dice_container = st.container()
 
-streamlit run app.py
+with dice_container:
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        # The clickable dice image
+        d20_html = f"""
+        <div class="dice-container">
+            <img src="https://i.imgur.com/7I4sxZL.png" 
+                 class="d20 {'spinning' if st.session_state.rolling else ''}" 
+                 onclick="window.parent.postMessage({{type: 'dice-click'}}, '*')">
+        </div>
+        """
+        st.markdown(d20_html, unsafe_allow_html=True)
+        
+        # Display the rolling result
+        if st.session_state.rolling:
+            # Simulate rolling for a moment
+            time.sleep(1)
+            st.session_state.result = random.randint(1, 20)
+            st.session_state.rolling = False
+            st.session_state.roll_history.append(st.session_state.result)
+            st.experimental_rerun()
+        
+        # Show the result
+        if st.session_state.result is not None:
+            st.markdown(f'<div class="result">You rolled: {st.session_state.result}</div>', unsafe_allow_html=True)
+
+# Handle the JavaScript click event
+st.markdown("""
+<script>
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'dice-click') {
+            const buttons = window.parent.document.querySelectorAll('button');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].innerText === 'Roll the dice') {
+                    buttons[i].click();
+                    break;
+                }
+            }
+        }
+    });
+</script>
+""", unsafe_allow_html=True)
+
+# Hidden button to trigger the roll
+if st.button('Roll the dice', key='roll_button', help='Click to roll the dice'):
+    roll_dice()
+
+# Show roll history
+if st.session_state.roll_history and st.checkbox('Show roll history'):
+    st.write("Previous rolls:")
+    history_df = st.dataframe({'Roll': st.session_state.roll_history})
