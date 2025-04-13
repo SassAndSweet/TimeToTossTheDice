@@ -69,7 +69,7 @@ with col2:
         time.sleep(1.5)
         st.session_state.rolling = False
         st.session_state.animation_complete = True
-        st.experimental_rerun()
+        st.rerun()
     else:
         # Regular dice image
         st.markdown(f"""
@@ -86,7 +86,7 @@ with col2:
             # Generate random number
             st.session_state.result = random.randint(1, 20)
             st.session_state.roll_history.append(st.session_state.result)
-            st.experimental_rerun()
+            st.rerun()
 
     # Show the result
     if st.session_state.result is not None and st.session_state.animation_complete:
@@ -104,4 +104,4 @@ if len(st.session_state.roll_history) > 0:
         # Option to clear history
         if st.button("Clear History"):
             st.session_state.roll_history = []
-            st.experimental_rerun()
+            st.rerun()
